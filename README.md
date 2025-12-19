@@ -1,0 +1,1 @@
+# wc-vm-deploy-bicep
