@@ -25,10 +25,23 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
           protocol: 'Tcp'
           access: 'Allow'
           direction: 'Inbound'
-          sourceAddressPrefix: '*'
+          sourceAddressPrefix: '133.32.181.21'
           sourcePortRange: '*'
-          destinationAddressPrefix: '*'
+          destinationAddressPrefix: 'VirtualNetwork'
           destinationPortRange: '22'
+        }
+      }
+      {
+        name: 'AllowTCP8080'
+        properties: {
+          priority: 120
+          protocol: 'Tcp'
+          access: 'Allow'
+          direction: 'Inbound'
+          sourceAddressPrefix: 'Internet'
+          sourcePortRange: '*'
+          destinationAddressPrefix: 'VirtualNetwork'
+          destinationPortRange: '8080'
         }
       }
       {
