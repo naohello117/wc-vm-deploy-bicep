@@ -19,20 +19,33 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
   properties: {
     securityRules: [
       {
-        name: 'AllowSSH'
+        name: 'AllowRDP'
         properties: {
-          priority: 110
+          priority: 100
           protocol: 'Tcp'
           access: 'Allow'
           direction: 'Inbound'
           sourceAddressPrefix: '133.32.181.21'
           sourcePortRange: '*'
           destinationAddressPrefix: 'VirtualNetwork'
-          destinationPortRange: '22'
+          destinationPortRange: '3389'
         }
       }
       {
-        name: 'AllowTCP8080'
+        name: 'AllowHTTP8080'
+        properties: {
+          priority: 110
+          protocol: 'Tcp'
+          access: 'Allow'
+          direction: 'Inbound'
+          sourceAddressPrefix: 'Internet'
+          sourcePortRange: '*'
+          destinationAddressPrefix: 'VirtualNetwork'
+          destinationPortRange: '8080'
+        }
+      }
+      {
+        name: 'AllowHTTPS'
         properties: {
           priority: 120
           protocol: 'Tcp'
@@ -41,7 +54,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
           sourceAddressPrefix: 'Internet'
           sourcePortRange: '*'
           destinationAddressPrefix: 'VirtualNetwork'
-          destinationPortRange: '8080'
+          destinationPortRange: '443'
         }
       }
       {

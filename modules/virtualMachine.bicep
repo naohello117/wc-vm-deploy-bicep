@@ -17,6 +17,12 @@ param nicId string
 @description('Data disk name')
 param dataDiskName string
 
+@description('DSC package URL (zip file containing compiled MOF)')
+param dscPackageUrl string = ''
+
+@description('Blob Storage URL for web content')
+param blobStorageUrl string = ''
+
 resource dataDisk 'Microsoft.Compute/disks@2023-10-02' = {
   name: dataDiskName
   location: location
@@ -45,9 +51,9 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
     }
     storageProfile: {
       imageReference: {
-        publisher: 'Canonical'
-        offer: '0001-com-ubuntu-server-jammy'
-        sku: '22_04-lts-gen2'
+        publisher: 'MicrosoftWindowsServer'
+        offer: 'WindowsServer'
+        sku: '2022-datacenter-g2'
         version: 'latest'
       }
       osDisk: {
@@ -73,6 +79,31 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
         }
       ]
     }
+  }
+}
+
+// DSC Extension to configure IIS
+resource vmDscExtension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = if (dscPackageUrl != '') {
+  parent: vm
+  name: 'Microsoft.Powershell.DSC'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Powershell'
+    type: 'DSC'
+    typeHandlerVersion: '2.77'
+    autoUpgradeMinorVersion: true
+    settings: {
+      configuration: {
+        url: dscPackageUrl
+        script: 'ConfigureIIS.ps1'
+        function: 'ConfigureIIS'
+      }
+      configurationArguments: {
+        MachineName: 'localhost'
+        BlobStorageUrl: blobStorageUrl
+      }
+    }
+    protectedSettings: {}
   }
 }
 

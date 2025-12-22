@@ -26,7 +26,13 @@ param vmName string = 'vm-bicep'
 @description('Data disk name')
 param dataDiskName string = 'disk-bicep'
 
-module network 'network.bicep' = {
+@description('DSC package URL (leave empty to skip DSC configuration)')
+param dscPackageUrl string = ''
+
+@description('Blob Storage URL for web content (leave empty to skip)')
+param blobStorageUrl string = ''
+
+module network 'modules/network.bicep' = {
   params: {
     location: location
     vnetName: vnetName
@@ -36,7 +42,8 @@ module network 'network.bicep' = {
   }
 }
 
-module virtualMachine 'virtualMachine.bicep' = {
+module virtualMachine 'modules/virtualMachine.bicep' = {
+  name: 'vm-deployment'
   params: {
     location: location
     vmName: vmName
@@ -44,6 +51,8 @@ module virtualMachine 'virtualMachine.bicep' = {
     adminPassword: adminPassword
     nicId: network.outputs.nicId
     dataDiskName: dataDiskName
+    dscPackageUrl: dscPackageUrl
+    blobStorageUrl: blobStorageUrl
   }
 }
 
