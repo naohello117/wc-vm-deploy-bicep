@@ -32,22 +32,9 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
         }
       }
       {
-        name: 'AllowHTTP8080'
-        properties: {
-          priority: 110
-          protocol: 'Tcp'
-          access: 'Allow'
-          direction: 'Inbound'
-          sourceAddressPrefix: 'Internet'
-          sourcePortRange: '*'
-          destinationAddressPrefix: 'VirtualNetwork'
-          destinationPortRange: '8080'
-        }
-      }
-      {
         name: 'AllowHTTPS'
         properties: {
-          priority: 120
+          priority: 110
           protocol: 'Tcp'
           access: 'Allow'
           direction: 'Inbound'
