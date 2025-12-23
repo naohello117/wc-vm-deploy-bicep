@@ -21,9 +21,7 @@
 ```
 ├── main.bicep                      # メインエントリーポイント
 ├── README.md                       # プロジェクトドキュメント
-├── Build-DSCPackage.ps1            # DSC設定をコンパイルしてzipパッケージを作成
 ├── modules/                        # Bicepモジュール
-│   ├── storage.bicep              # BLOBストレージアカウント
 │   ├── network.bicep              # ネットワークリソース (VNet, NSG, PIP, NIC)
 │   └── virtualMachine.bicep       # VM、データディスク、DSC拡張
 ├── web-content/                    # Webサーバーコンテンツ
@@ -35,30 +33,23 @@
 
 ## 前提条件
 
-- PowerShell 7.0 以降（`pwsh`コマンドで起動）
+- PowerShell（Windows PowerShell 5.1以降またはPowerShell 7）
 - Azure CLI がインストールされていること
 - Azureサブスクリプションへのアクセス権限
 - Azure CLIでログイン済みであること (`az login`)
-
-**重要**: DSCビルドスクリプトはPowerShell 7で実行してください。Windows PowerShell 5.1では動作しません。
 
 ## デプロイ方法（完全自動化）
 
 ### 手順概要
 
-1. DSC設定をローカルでコンパイルしてzipパッケージを作成
-2. リソースグループとストレージアカウントを作成
+1. リソースグループとストレージアカウントを作成
+2. DSC設定スクリプトをzip化
 3. DSCパッケージとWebコンテンツをBLOBストレージにアップロード
 4. Bicepテンプレートをデプロイ（VM作成とDSC自動実行）
 
-### 1. PowerShell 7を起動してログイン
-
-**重要**: PowerShell 7（pwsh）を起動してください。Windows PowerShell 5.1では動作しません。
+### 1. Azure CLIでログイン
 
 ```powershell
-# PowerShell 7を起動（Windows Terminalまたはコマンドプロンプトから）
-pwsh
-
 # Azure CLIでログイン
 az login
 ```
@@ -72,17 +63,17 @@ $location = "japaneast"
 az group create --name $resourceGroup --location $location
 ```
 
-### 3. DSC設定のコンパイルとパッケージ化
-
-ローカルマシンでDSC設定をコンパイルします：
+### 3. DSC設定スクリプトのzip化
 
 ```powershell
 # ストレージアカウント名（グローバルに一意である必要があります）
 $storageAccountName = "stabicep$(Get-Random -Maximum 9999)"
 $containerName = "dsc-content-webapp"
 
-# DSCパッケージをビルド（PowerShell 7で実行）
-.\Build-DSCPackage.ps1
+# ConfigureIIS.ps1をzipファイルに圧縮
+Compress-Archive -Path "dsc\ConfigureIIS.ps1" -DestinationPath "ConfigureIIS.zip" -Force
+
+Write-Host "DSCパッケージ作成完了: ConfigureIIS.zip" -ForegroundColor Green
 ```
 
 ### 4. ストレージアカウントの作成
