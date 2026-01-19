@@ -56,5 +56,5 @@ jobs:
           parameters: >
             vmName=vm-deploy-bicep
             adminUsername=${{ secrets.VM_ADMIN_USERNAME }}
-            existingKeyVaultId=${{ secrets.VM_ADMIN_PASSWORD }}
+            adminPassword=${{ secrets.VM_ADMIN_PASSWORD }}
             location=japaneast
