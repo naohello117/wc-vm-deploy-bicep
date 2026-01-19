@@ -1,0 +1,60 @@
+# .github/workflows/deploy-azure-vm.yml
+
+name: Deploy Azure VM Bicep (from main.bicep)
+
+# このワークフローが実行されるトリガーを指定
+on:
+  push:
+    branches:
+      - cicd  # cicdブランチへのpushで実行
+    paths:
+      # 変更を監視するファイルを指定
+      - 'main.bicep'
+      - 'modules/**.bicep'
+      
+  # GitHubのActionsタブから手動で実行できるようにする
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # 実行環境
+    
+    steps:
+      # 1. リポジトリのコードをチェックアウト
+      # (main.bicep と modules/ ディレクトリを読み込むため)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Azure へのログイン
+      # (Azure Portal で作成した個別のシークレットを使用)
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          # 推奨: サービスプリンシパル情報を1つのシークレット（AZURE_CREDENTIALS）にまとめて渡します。
+          # 内容は次の JSON（例）を GitHub Secrets に登録してください:
+          # {"clientId":"...","clientSecret":"...","subscriptionId":"...","tenantId":"..."}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 3. Bicep ファイルのデプロイ
+      - name: Deploy Bicep (main.bicep)
+        uses: azure/arm-deploy@v1
+        with:
+          # スコープは必須入力です。resourceGroup を指定しているため以下を追加します。
+          scope: 'resourcegroup'
+          # デプロイ先のサブスクリプションID
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+          
+          # ★ ターゲットのリソースグループ名
+          resourceGroupName: 'rg-bicep-vm' 
+          
+          # ★ 実行するBicepファイル (main.bicep) のパス
+          template: './main.bicep' 
+          
+          # デプロイが失敗した場合にエラーとする
+          failOnStdErr: true
+
+          parameters: >
+            vmName=vm-deploy-bicep
+            adminUsername=${{ secrets.VM_ADMIN_USERNAME }}
+            existingKeyVaultId=${{ secrets.VM_ADMIN_PASSWORD }}
+            location=japaneast
