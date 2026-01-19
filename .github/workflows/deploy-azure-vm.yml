@@ -42,7 +42,7 @@ jobs:
           # スコープは必須入力です。resourceGroup を指定しているため以下を追加します。
           scope: 'resourcegroup'
           # デプロイ先のサブスクリプションID
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+          subscriptionId: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId }} 
           
           # ★ ターゲットのリソースグループ名
           resourceGroupName: 'rg-bicep-vm' 
