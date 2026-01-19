@@ -10,7 +10,7 @@ on:
     paths:
       # 変更を監視するファイルを指定
       - 'main.bicep'
-      - 'modules/**.bicep'
+      - '**.bicep'
       
   # GitHubのActionsタブから手動で実行できるようにする
   workflow_dispatch:
