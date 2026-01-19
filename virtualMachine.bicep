@@ -17,9 +17,18 @@ param nicId string
 @description('Data disk name')
 param dataDiskName string
 
-// 既存ディスクを参照
-resource existingDisk 'Microsoft.Compute/disks@2023-10-02' existing = {
+resource dataDisk 'Microsoft.Compute/disks@2023-10-02' = {
   name: dataDiskName
+  location: location
+  sku: {
+    name: 'StandardSSD_LRS'
+  }
+  properties: {
+    diskSizeGB: 64
+    creationData: {
+      createOption: 'Empty'
+    }
+  }
 }
 
 resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
@@ -52,7 +61,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
           lun: 0
           createOption: 'Attach'
           managedDisk: {
-            id: existingDisk.id
+            id: dataDisk.id
           }
         }
       ]
